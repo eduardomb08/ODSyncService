@@ -36,7 +36,13 @@ namespace OneDriveLib
             get; set;
         }
 
-        [Parameter(Position = 4, HelpMessage = "Create a log file")]
+        [Parameter(Position = 4, HelpMessage = "To test the status for the current user only")]
+        public SwitchParameter CurrentUserOnly
+        {
+            get; set;
+        }
+
+        [Parameter(Position = 5, HelpMessage = "Tries to avoid breaking with an exception if the process is elevated.")]
         public SwitchParameter IgnoreProcessElevation
         {
             get; set;
@@ -87,7 +93,7 @@ namespace OneDriveLib
                 return;
                 
             }
-            var statusCol = os.GetStatus();
+            var statusCol = os.GetStatus(CurrentUserOnly);
             foreach(var status in statusCol)
             {
                 if (String.IsNullOrEmpty(Type) || status.ServiceType.ToLower().Contains(Type.ToLower().Replace("*", "")))
