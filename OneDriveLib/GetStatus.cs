@@ -36,6 +36,12 @@ namespace OneDriveLib
             get; set;
         }
 
+        [Parameter(Position = 4, HelpMessage = "Create a log file")]
+        public SwitchParameter IgnoreProcessElevation
+        {
+            get; set;
+        }
+
         private const string dllName = "ODNative.dll";
         static string dllPath = null;
         static string originalPath = null;
@@ -45,7 +51,18 @@ namespace OneDriveLib
             if (!Environment.UserInteractive)
                 throw new InvalidOperationException("Non-Interactive mode detected. OneDrive Status can only be checked interactively");
             if (UacHelper.IsProcessElevated)
-                throw new InvalidOperationException("PowerShell is running in Administrator mode. OneDrive status cannot be checked in elevated privileges");
+            {
+                if (IgnoreProcessElevation)
+                {
+                    // If UAC is disabled and user is admin, that's ok to ignore elevation. But if UAD is 
+                    // disabled and user is not admin, then the process was elevated without permission.
+                    if (!UacHelper.IsUacEnabled && !UacHelper.IsCurrentUserInAdminRole)
+                        throw new InvalidOperationException("Can't ignore process elevation because EnableLUA registry key is set to false.");
+                }
+                else
+                    throw new InvalidOperationException("PowerShell is running in Administrator mode. OneDrive status cannot be checked in elevated privileges");
+            }
+
             WriteLog.ShouldLog = IncludeLog;
             if (IncludeLog)
                 WriteVerbose("Log file is being saved @ "+WriteLog.FileName);

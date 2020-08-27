@@ -108,11 +108,19 @@ namespace OneDriveLib
                 }
                 else
                 {
-                    WindowsIdentity identity = WindowsIdentity.GetCurrent();
-                    WindowsPrincipal principal = new WindowsPrincipal(identity);
-                    bool result = principal.IsInRole(WindowsBuiltInRole.Administrator);
-                    return result;
+                    return IsCurrentUserInAdminRole;
                 }
+            }
+        }
+
+        public static bool IsCurrentUserInAdminRole
+        {
+            get
+            {
+                WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                WindowsPrincipal principal = new WindowsPrincipal(identity);
+                bool result = principal.IsInRole(WindowsBuiltInRole.Administrator);
+                return result;
             }
         }
     }
